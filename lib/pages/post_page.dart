@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,10 +14,10 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   int? userId;
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
   List<Map<String, dynamic>> _posts = [];
   List<Map<String, dynamic>> _comments = [];
-  TextEditingController _commentController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
   int? _postId;
 
   Future<int?> getUserId() async {

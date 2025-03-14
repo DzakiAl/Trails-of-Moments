@@ -144,17 +144,13 @@ class DBHelper {
   static Future<List<Map<String, dynamic>>> getUserPosts(int userId) async {
     final db = await database;
 
-    // Debug print to check what userId is passed
-    print("Getting posts for user ID: $userId");
-
     List<Map<String, dynamic>> result = await db.rawQuery(
       '''
     SELECT * FROM posts WHERE user_id = ?
   ''',
       [userId],
     );
-
-    print("Posts found: $result");
+  
     return result;
   }
 
@@ -263,5 +259,15 @@ class DBHelper {
   static Future<int> deleteComment(int commentId) async {
     final db = await database;
     return await db.delete('comments', where: 'id = ?', whereArgs: [commentId]);
+  }
+
+    static Future<Map<String, dynamic>?> getUserByName(String name) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'users',
+      where: 'username = ?',
+      whereArgs: [name],
+    );
+    return result.isNotEmpty ? result.first : null;
   }
 }

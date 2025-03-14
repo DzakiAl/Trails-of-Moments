@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:trails_of_moments/auth_service.dart';
 
@@ -12,7 +14,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _verifyPasswordController = TextEditingController();
+  final TextEditingController _verifyPasswordController =
+      TextEditingController();
 
   bool _isLoading = false;
 
@@ -44,9 +47,20 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      // Insert user into local SQLite database
-      bool success = await AuthService.registerUser(name, email, password);
+      // Check if the username is already taken
+      bool nameExists = await AuthService.isUsernameTaken(name);
+      if (nameExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Username already in use!")),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
+      // Check if the email is already in use
+      bool success = await AuthService.registerUser(name, email, password);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Registration successful!")),

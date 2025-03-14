@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Track the selected tab
+  final int _selectedIndex = 0; // Track the selected tab
   List<Map<String, dynamic>> _posts = []; // Store fetched posts
 
   @override

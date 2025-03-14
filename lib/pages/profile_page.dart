@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -66,10 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadUserPosts() async {
-    print("Fetching posts for user ID: ${widget.userId}");
-
     final posts = await DBHelper.getUserPosts(widget.userId);
-    print("Fetched posts: $posts");
 
     setState(() {
       userPosts = List<Map<String, dynamic>>.from(
@@ -120,7 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
         File imageFile = File(imagePath);
         if (await imageFile.exists()) {
           await imageFile.delete();
-          print("Image deleted: $imagePath");
         }
       }
 
@@ -239,62 +237,58 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: MasonryGridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  itemCount: userPosts.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final post = userPosts[index];
-                    return Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/postpage',
-                              arguments: post,
-                            );
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: AspectRatio(
-                              aspectRatio: 1, // Adjust based on your needs
-                              child: Image.file(
-                                File(post["image"]),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    "assets/default_image.png",
-                                  );
-                                },
-                              ),
-                            ),
+              child: MasonryGridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                itemCount: userPosts.length,
+                shrinkWrap:
+                    true, // Allows the grid to expand inside the scroll view
+                physics:
+                    const BouncingScrollPhysics(), // Allows internal scrolling
+                itemBuilder: (context, index) {
+                  final post = userPosts[index];
+
+                  return Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/postpage',
+                            arguments: post,
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(post["image"]),
+                            fit: BoxFit.cover, // Ensure it fills properly
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset("assets/default_image.png");
+                            },
                           ),
                         ),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.black54,
-                            radius: 18,
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                              onPressed: () => _deletePost(post['id']),
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black54,
+                          radius: 18,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                              size: 18,
                             ),
+                            onPressed: () => _deletePost(post['id']),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
